@@ -14,13 +14,152 @@
 
     <style is="custom-style" include="demo-pages-shared-styles">
     </style>
+    <script>
+      window.onload = function(){
+        document.getElementById('data').data = [
+          {
+            title: 'The Transcendentalists',
+            order: 0,
+            children: [
+              {
+                title: 'Ralph Waldo Emerson',
+                order: 0,
+                children: [
+                  {
+                    title: 'Overview',
+                    order: 0,
+                    children: []
+                  },{
+                    title: 'Readings',
+                    order: 1,
+                    children: [
+                      {
+                        title: 'Self-Reliance',
+                        order: 0,
+                        children: []
+                      },{
+                        title: 'Nature',
+                        order: 1,
+                        children: []
+                      }
+                    ]
+                  },
+                  {
+                    title: 'Summary',
+                    order: 2,
+                    children: []
+                  }
+                ]
+              },{
+                title: 'Henry David Thoreau',
+                children: [
+                  {
+                    title: 'Overview',
+                    order: 0,
+                    children: []
+                  },{
+                    title: 'Readings',
+                    order: 1,
+                    children: [
+                      {
+                        title: 'Civil Disobedience',
+                        order: 0,
+                        children: []
+                      },{
+                        title: 'Walden',
+                        order: 1,
+                        children: []
+                      }
+                    ]
+                  },
+                  {
+                    title: 'Summary',
+                    order: 2,
+                    children: []
+                  }
+                ]
+              }
+            ]
+          },{
+            title: 'The Anti-Transcendentalists',
+            order: 0,
+            children: [
+              {
+                title: 'Herman Melville',
+                order: 0,
+                children: [
+                  {
+                    title: 'Overview',
+                    order: 0,
+                    children: []
+                  },{
+                    title: 'Readings',
+                    order: 1,
+                    children: [
+                      {
+                        title: 'Bartleby the Scrivener',
+                        order: 0,
+                        children: []
+                      },{
+                        title: 'Moby Dick',
+                        order: 1,
+                        children: []
+                      }
+                    ]
+                  },
+                  {
+                    title: 'Summary',
+                    order: 2,
+                    children: []
+                  }
+                ]
+              },{
+                title: 'Nathaniel Hawthorne',
+                children: [
+                  {
+                    title: 'Overview',
+                    order: 0,
+                    children: []
+                  },{
+                    title: 'Readings',
+                    order: 1,
+                    children: [
+                      {
+                        title: 'The Scarlet Letter',
+                        order: 0,
+                        children: []
+                      },{
+                        title: 'Rappaccini\'s Daughter',
+                        order: 1,
+                        children: []
+                      }
+                    ]
+                  },
+                  {
+                    title: 'Summary',
+                    order: 2,
+                    children: []
+                  }
+                ]
+              }
+            ]
+          },
+        ];
+        console.log('items',document.getElementById('data').items);
+      };
+    </script>
   </head>
   <body>
     <div class="vertical-section-container centered">
       <h3>Basic lrnsys-outline demo</h3>
       <demo-snippet>
         <template>
-          <lrnsys-outline></lrnsys-outline>
+          <lrnsys-outline id="data" title="Outline with Data Loaded"></lrnsys-outline>
+        </template>
+      </demo-snippet>
+      <demo-snippet>
+        <template>
+          <lrnsys-outline id="no-data" title="Outline with No Data"></lrnsys-outline>
         </template>
       </demo-snippet>
     </div>

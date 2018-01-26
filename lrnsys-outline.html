@@ -1,4 +1,6 @@
 <link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../paper-input/paper-input.html">
+<link rel="import" href="lrnsys-outline-item.html">
 
 <!--
 `lrnsys-outline`
@@ -20,21 +22,69 @@ A LRN element
         display: block;
       }
     </style>
-    <h2>[[title]]</h2>
+    <h1>[[title]]</h1>
+    <template is="dom-repeat" items$="[[items]]" as="item">
+      <lrnsys-outline-item title$="[[item.title]]" indent$="[[item.indent]]"></lrnsys-outline-item>
+    </template>
   </template>
 
   <script>
     Polymer({
 
       is: 'lrnsys-outline',
+      
+      listeners: {
+        'add-item': '_addItem',
+        'delete-item': '_deleteItem',
+        'indent-item': '_indentItem',
+        'focus-item': '_focusItem',
+      },
 
       properties: {
         title: {
           type: String,
-          value: 'lrnsys-outline',
+          value: 'Content Outline',
+        },
+        data: {
+          type: Array,
+          value: [{title: '', order: 0, parent: null}],
+          reflectToAttribute: true,
+        },
+        items: {
+          type: Array,
+          computed: '_getItems(data)',
+          reflectToAttribute: true,
         },
       },
-
+      ready: function(){
+        console.log(this.items);
+      },
+      _getItems: function(data, items, indent){
+        items = items === undefined ? [] : items;
+        indent = indent === undefined ? 0 : indent;
+        for (i in data) {
+          items.push({
+            title: data[i].title,
+            indent: indent,
+          });
+          items = this._getItems(data[i].children,items,indent+1);
+        }
+        return items;
+      },
+      _addItem: function(e){
+        console.log(e,e.detail);
+      },
+      _deleteItem: function(e){
+        if(confirm('Delete '+e.detail.item.getAttribute('title')+'?')){
+          e.detail.item.remove();
+        }
+      },
+      _focusItem: function(e){
+        console.log(e,e.detail);
+      },
+      _indentItem: function(e){
+        console.log(e,e.detail);
+      }
     });
   </script>
 </dom-module>

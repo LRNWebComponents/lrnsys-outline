@@ -1,0 +1,113 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../iron-list/iron-list.html">
+<link rel="import" href="../iron-a11y-keys/iron-a11y-keys.html">
+<link rel="import" href="../paper-input/paper-input.html">
+
+<!--
+`lrnsys-outline-item`
+A LRN element
+
+@demo demo/index.html
+
+@microcopy - the mental model for this element
+ -
+ -
+ -
+
+-->
+
+<dom-module id="lrnsys-outline-item">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+      :host[indent="0"] {
+        padding-left: 0em;
+      }
+      :host[indent="1"] {
+        padding-left: 2.5em;
+      }
+      :host[indent="2"] {
+        padding-left: 5em;
+      }
+      :host[indent="3"] {
+        padding-left: 7.5em;
+      }
+      :host[indent="4"] {
+        padding-left: 10em;
+      }
+      :host[indent="5"] {
+        padding-left: 12.5em;
+      }
+      :host[indent="6"] {
+        padding-left: 15em;
+      }
+    </style>
+    <div id="wrapper" indent$="[[indent]]">
+      <paper-input 
+        id="input" 
+        label="Enter a page title" 
+        value$="[[title]]" 
+        no-label-float>
+      </paper-input>
+    </div>
+    <iron-a11y-keys id="a11y" target="[[target]]" keys="enter"
+    on-keys-pressed="onEnter"></iron-a11y-keys>
+    <iron-a11y-keys id="a11y" target="[[target]]" keys="tab"
+    on-keys-pressed="onTab"></iron-a11y-keys>
+    <iron-a11y-keys id="a11y" target="[[target]]" keys="backspace"
+    on-keys-pressed="onBackspace"></iron-a11y-keys>
+    <iron-a11y-keys id="a11y" target="[[target]]" keys="up"
+    on-keys-pressed="onUp"></iron-a11y-keys>
+    <iron-a11y-keys id="a11y" target="[[target]]" keys="down"
+    on-keys-pressed="onDown"></iron-a11y-keys>
+  </template>
+
+  <script>
+    Polymer({
+
+      is: 'lrnsys-outline-item',
+
+      properties: {
+        title: {
+          type: String,
+          value: null,
+        },
+        target: {
+          type: Object,
+          value: null,
+        },
+        indent: {
+          type: Number,
+          value: 0,
+        },
+      },
+      ready: function(){
+        this.target = this.$.input;
+      },
+      onEnter: function(){
+        let i = this.$.input.querySelector('input').selectionStart, j = this.$.input.value;
+        this.fire('add-item', {item: this, value: j.slice(0, i), new: j.slice(i, j.length)});
+      },
+      onTab: function(){
+        if (this.$.input.querySelector('input').selectionStart == 0) {
+          this.fire('indent-item', {item: this, increase: true});
+        }
+      },
+      onBackspace: function(){
+        if (window.getSelection().toString() == this.$.input.value){
+          this.fire('delete-item', {item: this});
+        } else if (this.$.input.querySelector('input').selectionStart == 0 && this.indent > 0) {
+          this.fire('indent-item', {item: this, increase: false});
+        }
+      },
+      onUp: function(){
+        this.fire('focus-item', {item: this, moveUp: true});
+      },
+      onDown: function(){
+        this.fire('focus-item', {item: this, moveUp: false});
+      },
+    });
+  </script>
+</dom-module>
