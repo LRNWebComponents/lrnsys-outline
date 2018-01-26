@@ -1,0 +1,40 @@
+<link rel="import" href="../polymer/polymer.html">
+
+<!--
+`lrnsys-outline`
+A LRN element
+
+@demo demo/index.html
+
+@microcopy - the mental model for this element
+ -
+ -
+ -
+
+-->
+
+<dom-module id="lrnsys-outline">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+    </style>
+    <h2>[[title]]</h2>
+  </template>
+
+  <script>
+    Polymer({
+
+      is: 'lrnsys-outline',
+
+      properties: {
+        title: {
+          type: String,
+          value: 'lrnsys-outline',
+        },
+      },
+
+    });
+  </script>
+</dom-module>
