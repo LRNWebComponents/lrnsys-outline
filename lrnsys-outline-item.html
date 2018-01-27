@@ -53,15 +53,15 @@ A LRN element
       </paper-input>
     </div>
     <iron-a11y-keys id="a11y" target="[[target]]" keys="enter"
-    on-keys-pressed="onEnter"></iron-a11y-keys>
+    on-keys-pressed="_onEnter"></iron-a11y-keys>
     <iron-a11y-keys id="a11y" target="[[target]]" keys="tab"
-    on-keys-pressed="onTab"></iron-a11y-keys>
+    on-keys-pressed="_onTab"></iron-a11y-keys>
     <iron-a11y-keys id="a11y" target="[[target]]" keys="backspace"
-    on-keys-pressed="onBackspace"></iron-a11y-keys>
+    on-keys-pressed="_onBackspace"></iron-a11y-keys>
     <iron-a11y-keys id="a11y" target="[[target]]" keys="up"
-    on-keys-pressed="onUp"></iron-a11y-keys>
+    on-keys-pressed="_onUp"></iron-a11y-keys>
     <iron-a11y-keys id="a11y" target="[[target]]" keys="down"
-    on-keys-pressed="onDown"></iron-a11y-keys>
+    on-keys-pressed="_onDown"></iron-a11y-keys>
   </template>
 
   <script>
@@ -70,42 +70,56 @@ A LRN element
       is: 'lrnsys-outline-item',
 
       properties: {
-        title: {
+        id: {
           type: String,
           value: null,
         },
-        target: {
-          type: Object,
+        title: {
+          type: String,
           value: null,
         },
         indent: {
           type: Number,
           value: 0,
         },
+        target: {
+          type: Object,
+          value: null,
+        },
       },
       ready: function(){
         this.target = this.$.input;
       },
-      onEnter: function(){
+      focus: function(){
+        this.$.input.focus();
+        return this;
+      },
+      value: function(){
+        this.title = this.$.input.value;
+        return this.title;
+      },
+      _onEnter: function(){
         let i = this.$.input.querySelector('input').selectionStart, j = this.$.input.value;
         this.fire('add-item', {item: this, value: j.slice(0, i), new: j.slice(i, j.length)});
       },
-      onTab: function(){
+      _onTab: function(e){
+        event.detail.keyboardEvent.preventDefault();
         if (this.$.input.querySelector('input').selectionStart == 0) {
           this.fire('indent-item', {item: this, increase: true});
         }
       },
-      onBackspace: function(){
+      _onBackspace: function(e){
         if (window.getSelection().toString() == this.$.input.value){
+          event.detail.keyboardEvent.preventDefault();
           this.fire('delete-item', {item: this});
         } else if (this.$.input.querySelector('input').selectionStart == 0 && this.indent > 0) {
           this.fire('indent-item', {item: this, increase: false});
         }
       },
-      onUp: function(){
+      _onUp: function(){
         this.fire('focus-item', {item: this, moveUp: true});
       },
-      onDown: function(){
+      _onDown: function(){
         this.fire('focus-item', {item: this, moveUp: false});
       },
     });

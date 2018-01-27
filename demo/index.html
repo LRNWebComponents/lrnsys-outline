@@ -16,7 +16,7 @@
     </style>
     <script>
       window.onload = function(){
-        document.getElementById('data').data = [
+        document.getElementById('data').setData([
           {
             title: 'The Transcendentalists',
             order: 0,
@@ -144,8 +144,7 @@
               }
             ]
           },
-        ];
-        console.log('items',document.getElementById('data').items);
+        ]);
       };
     </script>
   </head>
@@ -154,12 +153,12 @@
       <h3>Basic lrnsys-outline demo</h3>
       <demo-snippet>
         <template>
-          <lrnsys-outline id="data" title="Outline with Data Loaded"></lrnsys-outline>
+          <lrnsys-outline id="no-data" title="Outline with No Data"></lrnsys-outline>
         </template>
       </demo-snippet>
       <demo-snippet>
         <template>
-          <lrnsys-outline id="no-data" title="Outline with No Data"></lrnsys-outline>
+          <lrnsys-outline id="data" title="Outline with Data Loaded"></lrnsys-outline>
         </template>
       </demo-snippet>
     </div>

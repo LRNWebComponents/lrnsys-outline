@@ -23,9 +23,11 @@ A LRN element
       }
     </style>
     <h1>[[title]]</h1>
-    <template is="dom-repeat" items$="[[items]]" as="item">
-      <lrnsys-outline-item title$="[[item.title]]" indent$="[[item.indent]]"></lrnsys-outline-item>
-    </template>
+    <div id="itemslist">
+      <template id="domRepeat" is="dom-repeat" items="{{items}}" as="item">
+        <lrnsys-outline-item id$="{{item.id}}" title$="{{item.title}}" indent$="{{item.indent}}"></lrnsys-outline-item>
+      </template>
+    </div>
   </template>
 
   <script>
@@ -38,6 +40,7 @@ A LRN element
         'delete-item': '_deleteItem',
         'indent-item': '_indentItem',
         'focus-item': '_focusItem',
+        'add-item': '_addItem',
       },
 
       properties: {
@@ -48,43 +51,158 @@ A LRN element
         data: {
           type: Array,
           value: [{title: '', order: 0, parent: null}],
-          reflectToAttribute: true,
         },
         items: {
           type: Array,
-          computed: '_getItems(data)',
-          reflectToAttribute: true,
+          value: null,
+          notify: true,
         },
       },
       ready: function(){
-        console.log(this.items);
+        this.setData(this.data);
       },
-      _getItems: function(data, items, indent){
-        items = items === undefined ? [] : items;
-        indent = indent === undefined ? 0 : indent;
+      /**
+       * focuses on the first input
+       */
+      focus: function(){
+        let root = this;
+        this.querySelector('lrnsys-outline-item').focus();
+        return this;
+      },
+      /**
+       * adds a new item
+       */
+      new: function(item){
+        this.__tempid = this.__tempid+1;
+        let items = this.items, 
+          blank = {id: 'outline-item-'+this.__tempid, title: '', indent: item.indent}, 
+          i = this.items.findIndex(j => j.id === item.id);
+        items.splice(i, 0, blank);
+        this.items = [];
+        this.items = items;
+
+        /*let node = document.createElement('lrnsys-outline-item');
+        if (item !== undefined) {
+          node.setAttribute('indent',item.indent);
+          item.parentNode.insertBefore(node, item.nextSibling);
+        } else {
+          node.setAttribute('indent',0);
+          this.appendChild(node);
+        }
+        node.focus();
+        this.update();
+        return node;*/
+      },
+      /**
+       * removes an item
+       */
+      remove: function(item){
+        let items = this.items, i = this.items.findIndex(j => j.id === item.id);
+        items.splice(i, 1);
+        this.items = [];
+        this.items = items;
+        this._updateIndents();
+      },
+      /**
+       * updates indents
+       */
+      update: function(data){
+
+        /*let indent, root = this.$.itemslist, 
+        dom = Polymer.dom(root).getEffectiveChildNodes(), children = dom.children,
+        items = this.$.itemslist.children;
+        console.log(this.async(function() { this.$.itemslist.children; }),'root',root,'dom',dom,'children',children,'items',items);
+        for(i in items){
+          console.log(items[i]);
+          if (indent === undefined) {
+            items[i].setAttribute('indent',0);
+            indent = 0;
+          } else if (items[i].indent - indent > 1) {
+            items[i].setAttribute('indent',indent + 1);
+          } else if (items[i].indent < 0) {
+            items[i].setAttribute('indent',0);
+          }
+          indent = items[i].indent;
+        }*/
+      },
+      /**
+       * gets a nested array of items to convert & updates the dom-repeat
+       */
+      setData: function(data){
+        if(data !== undefined && data.length > 0){
+          this.items = this._convertData(data,[],0);
+        } else {
+          this.items = [];
+        }
+      },
+      /**
+       * converts a nested array of items and returns a flat list with indents
+       */
+      _convertData: function(data, items, indent){
         for (i in data) {
+          this.__tempid = this.__tempid === undefined ? 0 : this.__tempid + 1;
           items.push({
+            id: 'outline-item-'+this.__tempid,
             title: data[i].title,
             indent: indent,
           });
-          items = this._getItems(data[i].children,items,indent+1);
+          items = this._convertData(data[i].children,items,indent+1);
         }
         return items;
       },
+      /**
+       * listener to add an item
+       */
       _addItem: function(e){
-        console.log(e,e.detail);
+        this.new(e.detail.item);
       },
+      /**
+       * listener to delete an item
+       */
       _deleteItem: function(e){
-        if(confirm('Delete '+e.detail.item.getAttribute('title')+'?')){
-          e.detail.item.remove();
+        this.remove(e.detail.item);
+      },
+      /**
+       * listener to move focus up or down
+       */
+      _focusItem: function(e){
+        if(e.detail.moveUp){
+          e.detail.item.previousElementSibling.focus();
+        } else {
+          e.detail.item.nextElementSibling.focus();
         }
       },
-      _focusItem: function(e){
-        console.log(e,e.detail);
-      },
+      /**
+       * listener to increase or decrease indent
+       */
       _indentItem: function(e){
-        console.log(e,e.detail);
-      }
+        let num = e.detail.increase ? 1 : -1;
+        e.detail.item.setAttribute('indent',e.detail.item.indent + num);
+        this.update();
+      },
+      /**
+       * updates indents
+       */
+      _updateIndents: function(){
+        let indent, items = this.items;
+        for (i in items){
+          console.log(items[i]);
+          if (indent === null) {
+            console.log('indent set',0);
+            items[i].indent = 0;
+            indent = 0;
+          } else if (items[i].indent - indent > 1) {
+            console.log('indent decreased',indent + 1);
+            items[i].indent = indent + 1;
+          } else if (items[i].indent < 0) {
+            console.log('indent increased',0);
+            items[i].indent = 0;
+          }
+          console.log(items[i].indent);
+          indent = items[i].indent;
+        }
+        console.log(items);
+      },
     });
   </script>
 </dom-module>
