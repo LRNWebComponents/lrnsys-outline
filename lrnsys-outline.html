@@ -24,7 +24,7 @@ A LRN element
     </style>
     <h1>[[title]]</h1>
     <div id="itemslist">
-      <template id="domRepeat" is="dom-repeat" items="{{items}}" as="item">
+      <template id="domRepeat" is="dom-repeat" items$="[[items]]" as="item">
         <lrnsys-outline-item id$="{{item.id}}" title$="{{item.title}}" indent$="{{item.indent}}"></lrnsys-outline-item>
       </template>
     </div>
@@ -74,24 +74,11 @@ A LRN element
        */
       new: function(item){
         this.__tempid = this.__tempid+1;
-        let items = this.items, 
-          blank = {id: 'outline-item-'+this.__tempid, title: '', indent: item.indent}, 
-          i = this.items.findIndex(j => j.id === item.id);
-        items.splice(i, 0, blank);
+        let items = this.items, i = this.items.findIndex(j => j.id === item.id);
+        items.splice(i+1, 0, {id: 'outline-item-'+this.__tempid, title: '', indent: item.indent});
         this.items = [];
         this.items = items;
-
-        /*let node = document.createElement('lrnsys-outline-item');
-        if (item !== undefined) {
-          node.setAttribute('indent',item.indent);
-          item.parentNode.insertBefore(node, item.nextSibling);
-        } else {
-          node.setAttribute('indent',0);
-          this.appendChild(node);
-        }
-        node.focus();
-        this.update();
-        return node;*/
+        this.$$('#itemslist').querySelectorAll('lrnsys-outline-item')[i+1].focus();
       },
       /**
        * removes an item
@@ -102,28 +89,6 @@ A LRN element
         this.items = [];
         this.items = items;
         this._updateIndents();
-      },
-      /**
-       * updates indents
-       */
-      update: function(data){
-
-        /*let indent, root = this.$.itemslist, 
-        dom = Polymer.dom(root).getEffectiveChildNodes(), children = dom.children,
-        items = this.$.itemslist.children;
-        console.log(this.async(function() { this.$.itemslist.children; }),'root',root,'dom',dom,'children',children,'items',items);
-        for(i in items){
-          console.log(items[i]);
-          if (indent === undefined) {
-            items[i].setAttribute('indent',0);
-            indent = 0;
-          } else if (items[i].indent - indent > 1) {
-            items[i].setAttribute('indent',indent + 1);
-          } else if (items[i].indent < 0) {
-            items[i].setAttribute('indent',0);
-          }
-          indent = items[i].indent;
-        }*/
       },
       /**
        * gets a nested array of items to convert & updates the dom-repeat
@@ -176,9 +141,14 @@ A LRN element
        * listener to increase or decrease indent
        */
       _indentItem: function(e){
-        let num = e.detail.increase ? 1 : -1;
-        e.detail.item.setAttribute('indent',e.detail.item.indent + num);
-        this.update();
+        let num = e.detail.increase ? 1 : -1, item = e.detail.item, indent = item.indent, next = item.nextElementSibling;
+        item.setAttribute('indent',indent + num);
+        while (next.indent > indent){
+          console.log(next,next.indent,indent);
+          next.setAttribute('indent',next.indent + num);
+          next = next.nextElementSibling;
+        }
+        this._updateIndents();
       },
       /**
        * updates indents
