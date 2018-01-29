@@ -54,22 +54,24 @@ A LRN element
     </div>
     <iron-a11y-keys id="a11y" target="[[target]]" keys="enter"
     on-keys-pressed="_onEnter"></iron-a11y-keys>
-    <iron-a11y-keys id="a11y" target="[[target]]" keys="tab"
-    on-keys-pressed="_onTab"></iron-a11y-keys>
     <iron-a11y-keys id="a11y" target="[[target]]" keys="backspace"
     on-keys-pressed="_onBackspace"></iron-a11y-keys>
     <iron-a11y-keys id="a11y" target="[[target]]" keys="up"
     on-keys-pressed="_onUp"></iron-a11y-keys>
     <iron-a11y-keys id="a11y" target="[[target]]" keys="down"
     on-keys-pressed="_onDown"></iron-a11y-keys>
+    <iron-a11y-keys id="a11y" target="[[target]]" keys="control+left"
+    on-keys-pressed="_onCtrlLeft"></iron-a11y-keys>
+    <iron-a11y-keys id="a11y" target="[[target]]" keys="control+right"
+    on-keys-pressed="_onCtrlRight"></iron-a11y-keys>
     <iron-a11y-keys id="a11y" target="[[target]]" keys="shift+up"
     on-keys-pressed="_onShiftUp"></iron-a11y-keys>
     <iron-a11y-keys id="a11y" target="[[target]]" keys="shift+down"
     on-keys-pressed="_onShiftDown"></iron-a11y-keys>
-    <iron-a11y-keys id="a11y" target="[[target]]" keys="shift+left"
-    on-keys-pressed="_onShiftLeft"></iron-a11y-keys>
-    <iron-a11y-keys id="a11y" target="[[target]]" keys="shift+right"
-    on-keys-pressed="_onShiftRight"></iron-a11y-keys>
+    <iron-a11y-keys id="a11y" target="[[target]]" keys="alt+up"
+    on-keys-pressed="_onAltUp"></iron-a11y-keys>
+    <iron-a11y-keys id="a11y" target="[[target]]" keys="alt+down"
+    on-keys-pressed="_onAltDown"></iron-a11y-keys>
   </template>
 
   <script>
@@ -114,39 +116,41 @@ A LRN element
         let i = this.$.input.querySelector('input').selectionStart, j = this.$.input.value;
         this.fire('add-item', {item: this, value: j.slice(0, i), new: j.slice(i, j.length)});
       },
-      _onTab: function(e){
-        event.detail.keyboardEvent.preventDefault();
-        if (window.getSelection().toString() == this.$.input.value) {
-          this.fire('indent-item', {item: this, increase: true});
-        } else {
-          this.fire('focus-item', {item: this, moveUp: false});
-        }
-      },
       _onBackspace: function(e){
         if (window.getSelection().toString() == this.$.input.value){
           event.detail.keyboardEvent.preventDefault();
           this.fire('delete-item', {item: this});
-        } else if (this.$.input.querySelector('input').selectionStart == 0 && this.indent > 0) {
+        } else if (this.$.input.querySelector('input').selectionStart == 0) {
           this.fire('indent-item', {item: this, increase: false});
         }
       },
-      _onShiftLeft: function(){
-        this.fire('indent-item', {item: this, increase: true});
-      },
-      _onShiftRight: function(){
-        this.fire('indent-item', {item: this, increase: false});
-      },
-      _onShiftUp: function(){
-        this.fire('move-item', {item: this, moveUp: true});
-      },
-      _onShiftDown: function(){
-        this.fire('move-item', {item: this, moveUp: false});
-      },
       _onUp: function(){
-        this.fire('focus-item', {item: this, moveUp: true});
+        if (this.$.input.querySelector('input').selectionStart == 0) {
+          this.fire('focus-item', {item: this, moveUp: true});
+        }
       },
       _onDown: function(){
-        this.fire('focus-item', {item: this, moveUp: false});
+        if (this.$.input.querySelector('input').selectionStart == this.$.input.value.length) {
+          this.fire('focus-item', {item: this, moveUp: false});
+        }
+      },
+      _onCtrlLeft: function(){
+        this.fire('indent-item', {item: this, increase: false});
+      },
+      _onCtrlRight: function(){
+        this.fire('indent-item', {item: this, increase: true});
+      },
+      _onShiftUp: function(){
+        this.fire('move-item', {item: this, moveUp: true, byGroup: false});
+      },
+      _onShiftDown: function(){
+        this.fire('move-item', {item: this, moveUp: false, byGroup: false});
+      },
+      _onAltUp: function(){
+        this.fire('move-item', {item: this, moveUp: true, byGroup: true});
+      },
+      _onAltDown: function(){
+        this.fire('move-item', {item: this, moveUp: false, byGroup: true});
       },
     });
   </script>

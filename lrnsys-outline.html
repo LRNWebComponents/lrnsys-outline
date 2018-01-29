@@ -36,12 +36,12 @@ A LRN element
       is: 'lrnsys-outline',
       
       listeners: {
-        'add-item': '_addItem',
-        'delete-item': '_deleteItem',
-        'indent-item': '_indentItem',
-        'focus-item': '_focusItem',
-        'add-item': '_addItem',
-        'move-item': '_moveItem',
+        'add-item': '_handleAddItem',
+        'delete-item': '_handleRemoveItem',
+        'indent-item': '_handleIndentItem',
+        'focus-item': '_handleFocusItem',
+        'add-item': '_handleAddItem',
+        'move-item': '_handleMoveItem',
       },
 
       properties: {
@@ -63,35 +63,6 @@ A LRN element
         this.setData(this.data);
       },
       /**
-       * adds a new item
-       */
-      new: function(item){
-        this.__tempid = this.__tempid+1;
-        let items = this.items, i = this.items.findIndex(j => j.id === item.id);
-        items.splice(i+1, 0, {id: 'outline-item-'+this.__tempid, title: '', indent: item.indent});
-        this.items = [];
-        this.items = items;
-        this.$$('#itemslist').querySelectorAll('lrnsys-outline-item')[i+1].focus();
-      },
-      /**
-       * removes an item
-       */
-      remove: function(item){
-        let i = this.items.findIndex(j => j.id === item.id), items;
-        if (confirm('Do you really want to delete '+this.items[i].title+'?')) {
-          for (k in this.items){
-            if(this.items[k].parent == this.items[i].id) {
-              this._decreaseIndent(this.items[k]);
-            }
-          }
-          this.items.splice(i, 1);
-          items = this.items;
-          this.items = [];
-          this.items = items;
-          this.$$('#itemslist').querySelectorAll('lrnsys-outline-item')[i-1].focus();
-        }
-      },
-      /**
        * gets a nested array of items to convert & updates the dom-repeat
        */
       setData: function(data){
@@ -106,18 +77,6 @@ A LRN element
         this.items = data;
       },
       /**
-       * converts a nested array of items and returns a flat list with indents
-       */
-      _getIndent: function(data,i){
-        if (data[i].parent !== undefined) {
-          let k = data.findIndex(j => j.id === data[i].parent);
-          if (data[k] !== undefined && data[k].indent !== undefined){
-            return data[k].indent+1;
-          }
-        }
-        return 0;
-      },
-      /**
        * gets a flat array of items to convert & updates it to a nested array
        */
       getData: function(){
@@ -128,66 +87,50 @@ A LRN element
         return this.items;
       },
       /**
-       * returns an array or siblings
+       * adds a new item
        */
-      _getOrder: function(item){
-        let ctr = 0,order = 0;
-        for (i in this.items){
-          if(this.items[i].parent == item.parent && this.items[i].id == item.id) {
-            order = ctr;
-          } else if (this.items[i].parent == item.parent) {
-            ctr++;
-          }
-        }
-        return order;
-      },
-      /**
-       * listener to add an item
-       */
-      _addItem: function(e){
-        this.new(e.detail.item);
-      },
-      /**
-       * listener to delete an item
-       */
-      _deleteItem: function(e){
-        this.remove(e.detail.item);
-      },
-      /**
-       * listener to move focus up or down
-       */
-      _focusItem: function(e){
-        if(e.detail.moveUp){
-          e.detail.item.previousElementSibling.focus();
-        } else {
-          e.detail.item.nextElementSibling.focus();
-        }
-      },
-      /**
-       * det an item by item id
-       */
-      _getItemById: function(id,offset){
-        let i = this.items.findIndex(j => j.id === id);
-        offset = offset === undefined ? 0 : offset;
-        if (this.items[i+offset] !== undefined){
-          return this.items[i+offset];
-        } else {
-          return undefined;
-        }
-      },
-      /**
-       * listener to increase or decrease indent
-       */
-      _indentItem: function(e){
-        let items;
-        if (e.detail.increase){
-          this._increaseIndent(this._getItemById(e.detail.item.id));
-        } else {
-          this._decreaseIndent(this._getItemById(e.detail.item.id));
-        }
-        items = this.items;
+       addItem: function(item){
+        this.__tempid = this.__tempid+1;
+        let items = this.items, i = this.items.findIndex(j => j.id === item.id);
+        items.splice(i+1, 0, {id: 'outline-item-'+this.__tempid, title: '', indent: item.indent});
         this.items = [];
         this.items = items;
+        this.$$('#itemslist').querySelectorAll('lrnsys-outline-item')[i+1].focus();
+      },
+      /**
+       * removes an item
+       */
+       removeItem: function(item){
+        let i = this.items.findIndex(j => j.id === item.id), items;
+        if (confirm('Do you really want to delete '+this.items[i].title+'?')) {
+          for (k in this.items){
+            if(this.items[k].parent == this.items[i].id) {
+              this.items[k].parent = this.items[i].parent;
+            }
+          }
+          this.items.splice(i, 1);
+          items = this.items;
+          this.setData(items);
+          this.$$('#itemslist').querySelectorAll('lrnsys-outline-item')[i-1].focus();
+        }
+      },
+      /**
+       * moves an grop of items down
+       */
+      moveItem: function(item,moveUp,byGroup){
+        console.log(moveUp,byGroup);
+        let start = this.items.findIndex(j => j.id === item.id), children = byGroup ? this._getNextSibling(item): start+1;
+        let target = moveUp ? start-1 : start+1, total = children > -1 ? Math.abs(children-start) : Math.abs(this.items.length-1-start); 
+        let items, items2, items3, items4;
+        if(target > -1) {
+          this.items[start].parent = this.items[target].parent;
+          items = this.items.slice(start,total+1)
+          items2 = this.items.splice(start,total);
+          items3 = this.items.splice(target,0,...items2);
+          items4 = this.items;
+          this.setData(items4);
+          this.$$('#itemslist').querySelectorAll('lrnsys-outline-item')[target].focus();
+        }
       },
       /**
        * increase indent
@@ -211,6 +154,7 @@ A LRN element
        */
       _decreaseIndent: function(item){
         let next = this._getItemById(item.id,1), indent = item.indent;
+        console.log();
         if(indent > 0) {
           item.indent = item.indent - 1;
           item.parent = this._getItemById(item.parent).parent;
@@ -218,7 +162,104 @@ A LRN element
             next.indent = next.indent - 1;
             next = this._getItemById(next.id,1);
           }
+          items = this.items;
+          this.items = [];
+          this.items = items;
         }
+      },
+      /**
+       * converts a nested array of items and returns a flat list with indents
+       */
+      _getIndent: function(data,i){
+        if (data[i].parent !== undefined) {
+          let k = data.findIndex(j => j.id === data[i].parent);
+          if (data[k] !== undefined && data[k].indent !== undefined){
+            return data[k].indent+1;
+          }
+        }
+        return 0;
+      },
+      /**
+       * returns order relative to siblings
+       */
+      _getOrder: function(item){
+        let ctr = 0,order = 0;
+        for (i in this.items){
+          if(this.items[i].parent == item.parent && this.items[i].id == item.id) {
+            order = ctr;
+          } else if (this.items[i].parent == item.parent) {
+            ctr++;
+          }
+        }
+        return order;
+      },
+      /**
+       * returns previous sibling
+       */
+      _getNextSibling: function(item){
+        let ctr = 0,found = false,current= -1;
+        for (i in this.items){
+          if(this.items[i].id == item.id) {
+            current = parseInt(i);
+          } else if (current > -1 && this.items[i].indent <= item.indent) {
+            return parseInt(i);
+          }
+        }
+        return current > -1 ? current + 1 : current;
+      },
+      /**
+       * get an item by item id
+       */
+      _getItemById: function(id,offset){
+        let i = this.items.findIndex(j => j.id === id);
+        offset = offset === undefined ? 0 : offset;
+        if (this.items[i+offset] !== undefined){
+          return this.items[i+offset];
+        } else {
+          return undefined;
+        }
+      },
+      /**
+       * listener to add an item
+       */
+      _handleAddItem: function(e){
+        this.addItem(e.detail.item);
+      },
+      /**
+       * listener to delete an item
+       */
+      _handleRemoveItem: function(e){
+        this.removeItem(e.detail.item);
+      },
+      /**
+       * listener to move an item
+       */
+      _handleMoveItem: function(e){
+        this.moveItem(e.detail.item,e.detail.moveUp,e.detail.byGroup);
+      },
+      /**
+       * listener to move focus up or down
+       */
+      _handleFocusItem: function(e){
+        if(e.detail.moveUp){
+          e.detail.item.previousElementSibling.focus();
+        } else {
+          e.detail.item.nextElementSibling.focus();
+        }
+      },
+      /**
+       * listener to increase or decrease indent
+       */
+      _handleIndentItem: function(e){
+        let items;
+        if (e.detail.increase){
+          this._increaseIndent(this._getItemById(e.detail.item.id));
+        } else {
+          this._decreaseIndent(this._getItemById(e.detail.item.id));
+        }
+        items = this.items;
+        this.items = [];
+        this.items = items;
       },
     });
   </script>
