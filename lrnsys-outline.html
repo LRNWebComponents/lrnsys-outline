@@ -25,7 +25,7 @@ A LRN element
     <h1>[[title]]</h1>
     <div id="itemslist">
       <template id="domRepeat" is="dom-repeat" items$="[[items]]" as="item">
-        <lrnsys-outline-item id$="{{item.id}}" title$="{{item.title}}" indent$="{{item.indent}}"></lrnsys-outline-item>
+        <lrnsys-outline-item id$="{{item.id}}" title$="{{item.title}}" indent$="{{item.indent}}" parent$="{{item.parent}}"></lrnsys-outline-item>
       </template>
     </div>
   </template>
@@ -84,36 +84,70 @@ A LRN element
        * removes an item
        */
       remove: function(item){
-        let items = this.items, i = this.items.findIndex(j => j.id === item.id);
-        items.splice(i, 1);
-        this.items = [];
-        this.items = items;
-        this._updateIndents();
+        let i = this.items.findIndex(j => j.id === item.id), items;
+        if (confirm('Do you really want to delete '+this.items[i].title+'?')) {
+          for (k in this.items){
+            if(this.items[k].parent == this.items[i].id) {
+              this._decreaseIndent(this.items[k]);
+            }
+          }
+          this.items.splice(i, 1);
+          items = this.items;
+          this.items = [];
+          this.items = items;
+          this.$$('#itemslist').querySelectorAll('lrnsys-outline-item')[i-1].focus();
+        }
       },
       /**
        * gets a nested array of items to convert & updates the dom-repeat
        */
       setData: function(data){
+        this.items = [];
         if(data !== undefined && data.length > 0){
-          this.items = this._convertData(data,[],0);
-        } else {
-          this.items = [];
+          for (i in data) {
+            this.__tempid = this.__tempid === undefined ? 0 : this.__tempid + 1;
+            data[i].indent = this._getIndent(data,i);
+            data[i].id === data[i].id === undefined ? this.__tempid : data[i].id;
+          }
         }
+        this.items = data;
+        this.getData();
       },
       /**
        * converts a nested array of items and returns a flat list with indents
        */
-      _convertData: function(data, items, indent){
-        for (i in data) {
-          this.__tempid = this.__tempid === undefined ? 0 : this.__tempid + 1;
-          items.push({
-            id: 'outline-item-'+this.__tempid,
-            title: data[i].title,
-            indent: indent,
-          });
-          items = this._convertData(data[i].children,items,indent+1);
+      _getIndent: function(data,i){
+        if (data[i].parent !== undefined) {
+          let k = data.findIndex(j => j.id === data[i].parent);
+          if (data[k] !== undefined && data[k].indent !== undefined){
+            return data[k].indent+1;
+          }
         }
-        return items;
+        return 0;
+      },
+      /**
+       * gets a flat array of items to convert & updates it to a nested array
+       */
+      getData: function(){
+        for (i in this.items){
+          this.items[i].order = this._getOrder(this.items[i]);
+        }
+        console.log(this.items);
+        return this.items;
+      },
+      /**
+       * returns an array or siblings
+       */
+      _getOrder: function(item){
+        let ctr = 0,order = 0;
+        for (i in this.items){
+          if(this.items[i].parent == item.parent && this.items[i].id == item.id) {
+            order = ctr;
+          } else if (this.items[i].parent == item.parent) {
+            ctr++;
+          }
+        }
+        return order;
       },
       /**
        * listener to add an item
@@ -138,40 +172,61 @@ A LRN element
         }
       },
       /**
+       * det an item by item id
+       */
+      _getItemById: function(id,offset){
+        let i = this.items.findIndex(j => j.id === id);
+        offset = offset === undefined ? 0 : offset;
+        if (this.items[i+offset] !== undefined){
+          return this.items[i+offset];
+        } else {
+          return undefined;
+        }
+      },
+      /**
        * listener to increase or decrease indent
        */
       _indentItem: function(e){
-        let num = e.detail.increase ? 1 : -1, item = e.detail.item, indent = item.indent, next = item.nextElementSibling;
-        item.setAttribute('indent',indent + num);
-        while (next.indent > indent){
-          console.log(next,next.indent,indent);
-          next.setAttribute('indent',next.indent + num);
-          next = next.nextElementSibling;
+        let items;
+        if (e.detail.increase){
+          this._increaseIndent(this._getItemById(e.detail.item.id));
+        } else {
+          this._decreaseIndent(this._getItemById(e.detail.item.id));
         }
-        this._updateIndents();
+        items = this.items;
+        this.items = [];
+        this.items = items;
       },
       /**
-       * updates indents
+       * increase indent
        */
-      _updateIndents: function(){
-        let indent, items = this.items;
-        for (i in items){
-          console.log(items[i]);
-          if (indent === null) {
-            console.log('indent set',0);
-            items[i].indent = 0;
-            indent = 0;
-          } else if (items[i].indent - indent > 1) {
-            console.log('indent decreased',indent + 1);
-            items[i].indent = indent + 1;
-          } else if (items[i].indent < 0) {
-            console.log('indent increased',0);
-            items[i].indent = 0;
+      _increaseIndent: function(item){
+        let prev = this._getItemById(item.id,-1), next = this._getItemById(item.id,1), indent = item.indent;
+        if(item !== undefined && prev !== undefined && item.indent - prev.indent <= 0) {
+          item.indent = indent + 1;
+          item.parent = this._getItemById(item.id,-1).id;
+          while(next !== undefined && indent < next.indent){
+            next.indent = next.indent + 1;
+            next = this._getItemById(next.id,1);
           }
-          console.log(items[i].indent);
-          indent = items[i].indent;
+          items = this.items;
+          this.items = [];
+          this.items = items;
         }
-        console.log(items);
+      },
+      /**
+       * decrease indent
+       */
+      _decreaseIndent: function(item){
+        let next = this._getItemById(item.id,1), indent = item.indent;
+        if(indent > 0) {
+          item.indent = item.indent - 1;
+          item.parent = this._getItemById(item.parent).parent;
+          while(next !== undefined && indent < next.indent){
+            next.indent = next.indent - 1;
+            next = this._getItemById(next.id,1);
+          }
+        }
       },
     });
   </script>
