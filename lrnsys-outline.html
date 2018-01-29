@@ -41,6 +41,7 @@ A LRN element
         'indent-item': '_indentItem',
         'focus-item': '_focusItem',
         'add-item': '_addItem',
+        'move-item': '_moveItem',
       },
 
       properties: {
@@ -60,14 +61,6 @@ A LRN element
       },
       ready: function(){
         this.setData(this.data);
-      },
-      /**
-       * focuses on the first input
-       */
-      focus: function(){
-        let root = this;
-        this.querySelector('lrnsys-outline-item').focus();
-        return this;
       },
       /**
        * adds a new item
@@ -111,7 +104,6 @@ A LRN element
           }
         }
         this.items = data;
-        this.getData();
       },
       /**
        * converts a nested array of items and returns a flat list with indents

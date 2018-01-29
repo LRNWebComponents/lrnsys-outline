@@ -62,6 +62,14 @@ A LRN element
     on-keys-pressed="_onUp"></iron-a11y-keys>
     <iron-a11y-keys id="a11y" target="[[target]]" keys="down"
     on-keys-pressed="_onDown"></iron-a11y-keys>
+    <iron-a11y-keys id="a11y" target="[[target]]" keys="shift+up"
+    on-keys-pressed="_onShiftUp"></iron-a11y-keys>
+    <iron-a11y-keys id="a11y" target="[[target]]" keys="shift+down"
+    on-keys-pressed="_onShiftDown"></iron-a11y-keys>
+    <iron-a11y-keys id="a11y" target="[[target]]" keys="shift+left"
+    on-keys-pressed="_onShiftLeft"></iron-a11y-keys>
+    <iron-a11y-keys id="a11y" target="[[target]]" keys="shift+right"
+    on-keys-pressed="_onShiftRight"></iron-a11y-keys>
   </template>
 
   <script>
@@ -108,8 +116,10 @@ A LRN element
       },
       _onTab: function(e){
         event.detail.keyboardEvent.preventDefault();
-        if (this.$.input.querySelector('input').selectionStart == 0) {
+        if (window.getSelection().toString() == this.$.input.value) {
           this.fire('indent-item', {item: this, increase: true});
+        } else {
+          this.fire('focus-item', {item: this, moveUp: false});
         }
       },
       _onBackspace: function(e){
@@ -119,6 +129,18 @@ A LRN element
         } else if (this.$.input.querySelector('input').selectionStart == 0 && this.indent > 0) {
           this.fire('indent-item', {item: this, increase: false});
         }
+      },
+      _onShiftLeft: function(){
+        this.fire('indent-item', {item: this, increase: true});
+      },
+      _onShiftRight: function(){
+        this.fire('indent-item', {item: this, increase: false});
+      },
+      _onShiftUp: function(){
+        this.fire('move-item', {item: this, moveUp: true});
+      },
+      _onShiftDown: function(){
+        this.fire('move-item', {item: this, moveUp: false});
       },
       _onUp: function(){
         this.fire('focus-item', {item: this, moveUp: true});
