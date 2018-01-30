@@ -52,7 +52,7 @@ A LRN element
         },
         data: {
           type: Array,
-          value: [{title: '', order: 0, parent: null}],
+          value: null,
         },
         items: {
           type: Array,
@@ -61,6 +61,12 @@ A LRN element
         },
       },
       ready: function(){
+        if (this.data === null || this.data.length < 1) {
+          this.__tempid = this.__tempid === undefined ? 0 : this.__tempid + 1;
+          this.data = [
+            {id: 'outline-item-'+this.__tempid, title: '', order: 0, parent: null}
+          ];
+        }
         this.setData(this.data);
       },
       /**
@@ -72,7 +78,7 @@ A LRN element
           for (i in data) {
             this.__tempid = this.__tempid === undefined ? 0 : this.__tempid + 1;
             data[i].indent = this._getIndent(data,i);
-            data[i].id === data[i].id === undefined ? this.__tempid : data[i].id;
+            data[i].id === data[i].id === undefined ? 'outline-item-'+this.__tempid : data[i].id;
           }
         }
         this.items = data;

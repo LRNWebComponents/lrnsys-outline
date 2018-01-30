@@ -153,6 +153,9 @@
       function savedata(){
         alert(JSON.stringify(document.getElementById('data').getData()));
       }
+      function savedata2(){
+        alert(JSON.stringify(document.getElementById('no-data').getData()));
+      }
     </script>
   </head>
   <body>
@@ -318,7 +321,7 @@
           <lrnsys-outline id="no-data" title="Outline with No Data"></lrnsys-outline>
           <button onclick="savedata2()">Save</button>
           <script>
-            function savedata(){
+            function savedata2(){
               alert(JSON.stringify(document.getElementById('no-data').getData()));
             }
           </script>
