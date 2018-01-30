@@ -313,11 +313,17 @@
           </script>
         </template>
       </demo-snippet>
-      <!--demo-snippet>
+      <demo-snippet>
         <template>
           <lrnsys-outline id="no-data" title="Outline with No Data"></lrnsys-outline>
+          <button onclick="savedata2()">Save</button>
+          <script>
+            function savedata(){
+              alert(JSON.stringify(document.getElementById('no-data').getData()));
+            }
+          </script>
         </template>
-      </demo-snippet-->
+      </demo-snippet>
     </div>
   </body>
 </html>
