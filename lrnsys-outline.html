@@ -98,10 +98,10 @@ A LRN element
        addItem: function(item){
         let items = this.items, i = this.items.findIndex(j => j.id === item.id);
         this.__tempid = this.__tempid+1;
-        items.splice(i+1, 0, {id: 'outline-item-'+this.__tempid, title: '', indent: item.indent});
+        items.splice(i+1, 0, {id: 'outline-item-'+this.__tempid, title: '', indent: item.indent, parent: item.parent});
         this._refreshData();
         this.async(function() {
-          console.log(Polymer.dom(this.root).querySelectorAll('lrnsys-outline-item')[i+1].focus());
+          Polymer.dom(this.root).querySelectorAll('lrnsys-outline-item')[i+1].focus();
         });
       },
       /**
@@ -166,7 +166,6 @@ A LRN element
        */
       _decreaseIndent: function(item){
         let next = this._getItemById(item.id,1), indent = item.indent;
-        console.log();
         if(indent > 0) {
           item.indent = item.indent - 1;
           item.parent = this._getItemById(item.parent).parent;
