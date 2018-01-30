@@ -60,10 +60,10 @@ A LRN element
     on-keys-pressed="_onUp"></iron-a11y-keys>
     <iron-a11y-keys id="a11y" target="[[target]]" keys="down"
     on-keys-pressed="_onDown"></iron-a11y-keys>
-    <iron-a11y-keys id="a11y" target="[[target]]" keys="alt+left"
-    on-keys-pressed="_onAltLeft"></iron-a11y-keys>
-    <iron-a11y-keys id="a11y" target="[[target]]" keys="alt+right"
-    on-keys-pressed="_onAltRight"></iron-a11y-keys>
+    <iron-a11y-keys id="a11y" target="[[target]]" keys="ctrl+alt+left"
+    on-keys-pressed="_onCtrlAltLeft"></iron-a11y-keys>
+    <iron-a11y-keys id="a11y" target="[[target]]" keys="ctrl+alt+right"
+    on-keys-pressed="_onCtrlAltRight"></iron-a11y-keys>
     <iron-a11y-keys id="a11y" target="[[target]]" keys="alt+up"
     on-keys-pressed="_onAltUp"></iron-a11y-keys>
     <iron-a11y-keys id="a11y" target="[[target]]" keys="alt+down"
@@ -145,10 +145,10 @@ A LRN element
           this.fire('focus-item', {item: this, moveUp: false});
         }
       },
-      _onAltLeft: function(){
+      _onCtrlAltLeft: function(){
         this.fire('indent-item', {item: this, increase: false});
       },
-      _onAltRight: function(){
+      _onCtrlAltRight: function(){
         this.fire('indent-item', {item: this, increase: true});
       },
       _onAltUp: function(){
