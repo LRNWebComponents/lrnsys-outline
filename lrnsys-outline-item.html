@@ -78,6 +78,10 @@ A LRN element
     Polymer({
 
       is: 'lrnsys-outline-item',
+      
+      listeners: {
+        'change': '_onChange',
+      },
 
       properties: {
         id: {
@@ -87,6 +91,7 @@ A LRN element
         value: {
           type: String,
           value: null,
+          reflectToAttribute: true,
         },
         parent: {
           type: String,
@@ -111,6 +116,9 @@ A LRN element
       value: function(){
         this.title = this.$.input.value;
         return this.title;
+      },
+      _onChange: function(){
+        this.fire('change-item', {item: this, value: this.$.input.value});
       },
       _onEnter: function(){
         let i = this.$.input.querySelector('input').selectionStart, j = this.$.input.value;

@@ -42,6 +42,7 @@ A LRN element
         'focus-item': '_handleFocusItem',
         'add-item': '_handleAddItem',
         'move-item': '_handleMoveItem',
+        'change-item': '_handleChangeItem',
       },
 
       properties: {
@@ -93,8 +94,7 @@ A LRN element
         this.__tempid = this.__tempid+1;
         let items = this.items, i = this.items.findIndex(j => j.id === item.id);
         items.splice(i+1, 0, {id: 'outline-item-'+this.__tempid, title: '', indent: item.indent});
-        this.items = [];
-        this.items = items;
+        this._refreshData();
         this.$$('#itemslist').querySelectorAll('lrnsys-outline-item')[i+1].focus();
       },
       /**
@@ -109,8 +109,7 @@ A LRN element
             }
           }
           this.items.splice(i, 1);
-          items = this.items;
-          this.setData(items);
+          this._refreshData();
           this.$$('#itemslist').querySelectorAll('lrnsys-outline-item')[i-1].focus();
         }
       },
@@ -133,6 +132,14 @@ A LRN element
         }
       },
       /**
+       * refresh the array
+       */
+      _refreshData: function(){
+        items = this.items;
+        this.items = [];
+        this.items = items;
+      },
+      /**
        * increase indent
        */
       _increaseIndent: function(item){
@@ -144,9 +151,7 @@ A LRN element
             next.indent = next.indent + 1;
             next = this._getItemById(next.id,1);
           }
-          items = this.items;
-          this.items = [];
-          this.items = items;
+          this._refreshData();
         }
       },
       /**
@@ -162,9 +167,7 @@ A LRN element
             next.indent = next.indent - 1;
             next = this._getItemById(next.id,1);
           }
-          items = this.items;
-          this.items = [];
-          this.items = items;
+          this._refreshData();
         }
       },
       /**
@@ -251,15 +254,19 @@ A LRN element
        * listener to increase or decrease indent
        */
       _handleIndentItem: function(e){
-        let items;
         if (e.detail.increase){
           this._increaseIndent(this._getItemById(e.detail.item.id));
         } else {
           this._decreaseIndent(this._getItemById(e.detail.item.id));
         }
-        items = this.items;
-        this.items = [];
-        this.items = items;
+        this._refreshData();
+      },
+      /**
+       * listener to handle changes to text inputs
+       */
+      _handleChangeItem: function(e){
+        this._getItemById(e.detail.item.id).title = e.detail.value;
+        this._refreshData();
       },
     });
   </script>
