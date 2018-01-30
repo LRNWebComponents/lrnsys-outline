@@ -64,14 +64,14 @@ A LRN element
     on-keys-pressed="_onAltLeft"></iron-a11y-keys>
     <iron-a11y-keys id="a11y" target="[[target]]" keys="alt+right"
     on-keys-pressed="_onAltRight"></iron-a11y-keys>
-    <iron-a11y-keys id="a11y" target="[[target]]" keys="shift+up"
-    on-keys-pressed="_onShiftUp"></iron-a11y-keys>
-    <iron-a11y-keys id="a11y" target="[[target]]" keys="shift+down"
-    on-keys-pressed="_onShiftDown"></iron-a11y-keys>
     <iron-a11y-keys id="a11y" target="[[target]]" keys="alt+up"
     on-keys-pressed="_onAltUp"></iron-a11y-keys>
     <iron-a11y-keys id="a11y" target="[[target]]" keys="alt+down"
     on-keys-pressed="_onAltDown"></iron-a11y-keys>
+    <iron-a11y-keys id="a11y" target="[[target]]" keys="shift+up"
+    on-keys-pressed="_onShiftUp"></iron-a11y-keys>
+    <iron-a11y-keys id="a11y" target="[[target]]" keys="shift+down"
+    on-keys-pressed="_onShiftDown"></iron-a11y-keys>
   </template>
 
   <script>
@@ -151,16 +151,16 @@ A LRN element
       _onAltRight: function(){
         this.fire('indent-item', {item: this, increase: true});
       },
-      _onShiftUp: function(){
+      _onAltUp: function(){
         this.fire('move-item', {item: this, moveUp: true, byGroup: false});
       },
-      _onShiftDown: function(){
+      _onAltDown: function(){
         this.fire('move-item', {item: this, moveUp: false, byGroup: false});
       },
-      _onAltUp: function(){
+      _onShiftUp: function(){
         this.fire('move-item', {item: this, moveUp: true, byGroup: true});
       },
-      _onAltDown: function(){
+      _onShiftDown: function(){
         this.fire('move-item', {item: this, moveUp: false, byGroup: true});
       },
     });

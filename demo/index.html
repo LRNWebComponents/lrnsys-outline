@@ -13,6 +13,16 @@
     <link rel="import" href="../lrnsys-outline.html">
 
     <style is="custom-style" include="demo-pages-shared-styles">
+      kbd {
+        display: inline-block;
+        background: #333;
+        color: white;
+        border-radius: 0.25em;
+        margin: 0.25em 0.25em 0.25em 0;
+        padding: 0.5em;
+        font-family: Verdana, Geneva, Tahoma, sans-serif;
+        font-size:85%;
+      }
     </style>
     <script>
       window.onload = function(){
@@ -163,12 +173,12 @@
       <h3>Basic lrnsys-outline demo</h3>
       <p>Keyboard shortcuts:</p>
       <ul>
-        <li>Enter to add an item</li>
-        <li>Select entire item and backspace to delete an item.</li>
-        <li>&uarr;/&darr;/&larr;/&rarr; to move through items</li>
-        <li>Alt+&larr;/Alt+&rarr; to indent/outdent</li>
-        <li>Shift+&uarr;/Shift+&darr; to move an item up/down</li>
-        <li>Alt+&uarr;/Alt+&darr; to move an group up/down</li>
+        <li><kbd>Enter</kbd> to <strong>add</strong> an item</li>
+        <li><kbd>Backspace</kbd> <em>with entire item selected</em> to <strong>delete</strong> an item.</li>
+        <li><kbd>&uarr;</kbd> / <kbd>&darr;</kbd> / <kbd>&larr;</kbd> / <kbd>&rarr;</kbd> to <strong>navigate</strong> through items</li>
+        <li><kbd>Alt+&larr;</kbd> / <kbd>Alt+&rarr;</kbd> to <strong>indent/outdent</strong></li>
+        <li><kbd>Alt+&uarr;</kbd> / <kbd>Alt+&darr;</kbd> to <strong>move</strong> an item up/down</li>
+        <li><kbd>Shift+&uarr;</kbd> / <kbd>Shift+&darr;</kbd> to <strong>move a group</strong> of items up/down</li>
       </ul>
       <demo-snippet>
         <template>
