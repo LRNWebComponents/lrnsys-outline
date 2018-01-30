@@ -106,6 +106,9 @@ A LRN element
           value: null,
         },
       },
+      attached: function(){
+        this.fire('attached-item', {item: this});
+      },
       ready: function(){
         this.target = this.$.input;
       },

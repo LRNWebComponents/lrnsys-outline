@@ -36,7 +36,6 @@ A LRN element
       is: 'lrnsys-outline',
       
       listeners: {
-        'add-item': '_handleAddItem',
         'delete-item': '_handleRemoveItem',
         'indent-item': '_handleIndentItem',
         'focus-item': '_handleFocusItem',
@@ -97,11 +96,13 @@ A LRN element
        * adds a new item
        */
        addItem: function(item){
-        this.__tempid = this.__tempid+1;
         let items = this.items, i = this.items.findIndex(j => j.id === item.id);
+        this.__tempid = this.__tempid+1;
         items.splice(i+1, 0, {id: 'outline-item-'+this.__tempid, title: '', indent: item.indent});
         this._refreshData();
-        this.$$('#itemslist').querySelectorAll('lrnsys-outline-item')[i+1].focus();
+        this.async(function() {
+          console.log(Polymer.dom(this.root).querySelectorAll('lrnsys-outline-item')[i+1].focus());
+        });
       },
       /**
        * removes an item
