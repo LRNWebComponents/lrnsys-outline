@@ -43,6 +43,9 @@ A LRN element
       :host[indent="6"] {
         padding-left: 15em;
       }
+      :host {
+        padding-left: 20em;
+      }
     </style>
     <div id="wrapper" indent$="[[indent]]">
       <paper-input 
@@ -60,10 +63,10 @@ A LRN element
     on-keys-pressed="_onUp"></iron-a11y-keys>
     <iron-a11y-keys id="a11y" target="[[target]]" keys="down"
     on-keys-pressed="_onDown"></iron-a11y-keys>
-    <iron-a11y-keys id="a11y" target="[[target]]" keys="ctrl+alt+left"
-    on-keys-pressed="_onCtrlAltLeft"></iron-a11y-keys>
-    <iron-a11y-keys id="a11y" target="[[target]]" keys="ctrl+alt+right"
-    on-keys-pressed="_onCtrlAltRight"></iron-a11y-keys>
+    <iron-a11y-keys id="a11y" target="[[target]]" keys="tab"
+    on-keys-pressed="_onTab"></iron-a11y-keys>
+    <iron-a11y-keys id="a11y" target="[[target]]" keys="shift+tab"
+    on-keys-pressed="_onShiftTab"></iron-a11y-keys>
     <iron-a11y-keys id="a11y" target="[[target]]" keys="alt+up"
     on-keys-pressed="_onAltUp"></iron-a11y-keys>
     <iron-a11y-keys id="a11y" target="[[target]]" keys="alt+down"
@@ -120,6 +123,15 @@ A LRN element
         this.title = this.$.input.value;
         return this.title;
       },
+      setSelection: function(start,end){
+        let s = start !== undefined ? start : 0, n = end !== undefined ? end : s;
+        try {
+          this.$.input.querySelector('input').setSelectionRange(s,n);
+        } catch (e){
+          console.log(e);
+        }
+        this.focus();
+      },
       _onChange: function(){
         this.fire('change-item', {item: this, value: this.$.input.value});
       },
@@ -145,11 +157,16 @@ A LRN element
           this.fire('focus-item', {item: this, moveUp: false});
         }
       },
-      _onCtrlAltLeft: function(){
+      _onShiftTab: function(){
         this.fire('indent-item', {item: this, increase: false});
       },
-      _onCtrlAltRight: function(){
-        this.fire('indent-item', {item: this, increase: true});
+      _onTab: function(e){
+        //e.preventDefault();
+        console.log(this.$.input.querySelector('input').selectionStart == 0);
+        if (this.$.input.querySelector('input').selectionStart == 0) {
+          e.preventDefault();
+          this.fire('indent-item', {item: this, increase: true});
+        }
       },
       _onAltUp: function(){
         this.fire('move-item', {item: this, moveUp: true, byGroup: false});

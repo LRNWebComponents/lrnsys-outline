@@ -250,11 +250,8 @@ A LRN element
        * listener to move focus up or down
        */
       _handleFocusItem: function(e){
-        if(e.detail.moveUp){
-          e.detail.item.previousElementSibling.focus();
-        } else {
-          e.detail.item.nextElementSibling.focus();
-        }
+        let item = e.detail.moveUp ? e.detail.item.previousElementSibling : e.detail.item.nextElementSibling;
+        item.setSelection();
       },
       /**
        * listener to increase or decrease indent
