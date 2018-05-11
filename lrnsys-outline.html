@@ -142,9 +142,9 @@ A LRN element
        * refresh the array
        */
       _refreshData: function(){
-        items = this.items;
+        let items = this.items;
         this.items = [];
-        this.items = items;
+        this.items.splice(0,0,...items);
       },
       /**
        * increase indent
