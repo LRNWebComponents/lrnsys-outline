@@ -3,6 +3,7 @@
 <link rel="import" href="../iron-a11y-keys/iron-a11y-keys.html">
 <link rel="import" href="../paper-input/paper-input.html">
 <link rel="import" href="../paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../swipe-action/swipe-action.html">
 
 <!--
 `lrnsys-outline-item`
@@ -23,6 +24,9 @@ A LRN element
       :host {
         display: block;
         --indent-multiplier: 20px;
+      }
+      :host #swipe {
+        height: 40px;
       }
       :host [data-indent="0"] {
         padding-left: 0;
@@ -45,74 +49,60 @@ A LRN element
       :host [data-indent="6"] {
         padding-left: calc(var(--indent-multiplier) * 6);
       }
-      paper-icon-button {
-        font-size: 12px;
-        height: 16px;
-        width: 16px;
-        margin:0 2px;
-        padding: 0;
-        color: #AAAAAA;
-      }
-      paper-icon-button:focus,
-      paper-icon-button:hover {
-        color: #000000;
-      }
-      paper-icon-button#add:focus,
-      paper-icon-button#add:hover {
-        color: #00AA00;
-      }
-      paper-icon-button#delete:focus,
-      paper-icon-button#delete:hover {
-        color: #AA0000;
-      }
-      #wrapper {
-        display: inline-flex;
+      :host #swipe paper-icon-button {
+        position: static;
+        font-size: 20px;
         height: 40px;
+        width: 40px;
+        padding: 10px;
+        color: white;
       }
-      .ops {
-        display: inline-flex;
-        visibility: hidden;
+      :host #left {
+        display: flex;
+        justify-content: flex-end;
+      }
+      :host #right {
+        display: flex;
+        justify-content: flex-start;
+      }
+      :host #swipe paper-icon-button {
+        background-color: #222222;
+      }
+      :host #swipe paper-icon-button#add {
+        background-color: #008800;
+      }
+      :host #swipe paper-icon-button#delete {
+        background-color: #cc0000;
+      }
+      :host #wrapper {
+        /*display: inline-flex;*/
         height: 40px;
-        vertical-align: top;
-        margin-left: 16px;
-        float: right;
-        margin: 0;
-      }
-      .ops div {
-        display: block;
-        width: 20px;
-      }
-      :host:hover .ops,
-      :host:focus .ops {
-        visibility: visible;
-      }
-      :host:hover,
-      :host:focus {
-        background-color: #F2F2F2;
+        background-color: white;
       }
     </style>
-    <div id="wrapper" data-indent$="[[indent]]">
-      <paper-input
-        id="input"
-        label="Enter a page title"
-        value$="[[title]]"
-        no-label-float>
-      </paper-input>
-    </div>
-    <div class="ops">
-      <div>
-        <paper-icon-button title="move up" icon="icons:arrow-upward" on-tap="_up"></paper-icon-button>
-        <paper-icon-button title="move down" icon="icons:arrow-downward" on-tap="_down"></paper-icon-button>
+    <swipe-action id="swipe">
+      <div id="wrapper" data-indent$="[[indent]]">
+        <paper-input
+          id="input"
+          label="Enter a page title"
+          value$="[[title]]"
+          no-label-float>
+        </paper-input>
       </div>
-      <div>
-        <paper-icon-button title="bring in a level" icon="icons:arrow-back" on-tap="_outdent"></paper-icon-button>
-        <paper-icon-button title="indent item" icon="icons:arrow-forward" on-tap="_indent"></paper-icon-button>
+      <!-- Swipe left action -->
+      <div id="left" swipe-left-action swipe-size="80" swipe-rubber-band="20">
+        <paper-icon-button id="add" title="Add Item" icon="icons:add" on-tap="_add"></paper-icon-button>
+        <paper-icon-button id="delete" title="Delete" icon="icons:delete" on-tap="_delete"></paper-icon-button>
       </div>
-      <div>
-        <paper-icon-button id="add" title="add below here" icon="icons:add" on-tap="_add"></paper-icon-button>
-        <paper-icon-button id="delete" title="delete this" icon="icons:delete" on-tap="_delete"></paper-icon-button>
+
+      <!-- Swipe right action -->
+      <div id="right" swipe-right-action swipe-size="160" swipe-rubber-band="20">
+        <paper-icon-button id="outdent" title="Outdent" icon="icons:arrow-back" on-tap="_outdent"></paper-icon-button>
+        <paper-icon-button id="indent" title="Indent" icon="icons:arrow-forward" on-tap="_indent"></paper-icon-button>
+        <paper-icon-button id="up" title="Move Up" icon="icons:arrow-upward" on-tap="_up"></paper-icon-button>
+        <paper-icon-button id="down" title="Move Down" icon="icons:arrow-downward" on-tap="_down"></paper-icon-button>
       </div>
-    </div>
+    </swipe-action>
     <iron-a11y-keys id="a11y" target="[[target]]" keys="enter"
     on-keys-pressed="_onEnter"></iron-a11y-keys>
     <iron-a11y-keys id="a11y" target="[[target]]" keys="backspace"
@@ -181,22 +171,28 @@ A LRN element
       },
       _delete: function() {
         this.fire('delete-item', {item: this});
+        this.$.swipe.reset();
       },
       _indent: function() {
         this.fire('indent-item', {item: this, increase: true});
+        this.$.swipe.reset();
       },
       _outdent: function() {
         this.fire('indent-item', {item: this, increase: false});
+        this.$.swipe.reset();
       },
       _add: function() {
         let i = this.$.input.querySelector('input').selectionStart, j = this.$.input.value;
         this.fire('add-item', {item: this, value: j.slice(0, i), new: j.slice(i, j.length)});
+        this.$.swipe.reset();
       },
       _up: function() {
         this.fire('move-item', {item: this, moveUp: true, byGroup: true});
+        this.$.swipe.reset();
       },
       _down: function() {
         this.fire('move-item', {item: this, moveUp: false, byGroup: true});
+        this.$.swipe.reset();
       },
       setSelection: function(start,end){
         let s = start !== undefined ? start : 0, n = end !== undefined ? end : s;
