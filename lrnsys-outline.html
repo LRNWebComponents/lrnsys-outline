@@ -46,14 +46,23 @@ A LRN element
           <li><kbd>Backspace</kbd> <em>with entire item selected</em> to <strong>delete</strong> an item.</li>
           <li><kbd>&uarr;</kbd> / <kbd>&darr;</kbd> / <kbd>&larr;</kbd> / <kbd>&rarr;</kbd> to <strong>navigate</strong> through items</li>
           <li><kbd>Tab</kbd> / <kbd>Shift+Tab</kbd> <em>at the beginning of a line</em> to <strong>indent/outdent</strong></li>
-          <li><kbd>Alt+&uarr;</kbd> / <kbd>Alt+&darr;</kbd> to <strong>move</strong> an item up/down</li>
-          <li><kbd>Shift+&uarr;</kbd> / <kbd>Shift+&darr;</kbd> to <strong>move a group</strong> of items up/down</li>
+          <li><kbd>Shift+&uarr;</kbd> / <kbd>Shift+&darr;</kbd> to items up/down</li>
         </ul>
       </div>
     </paper-dialog>
     <div id="itemslist">
-      <template id="domRepeat" is="dom-repeat" items$="[[items]]" as="item">
-        <lrnsys-outline-item id$="{{item.id}}" title$="{{item.title}}" indent$="{{item.indent}}" parent$="{{item.parent}}"></lrnsys-outline-item>
+      <template id="domRepeat" is="dom-repeat" items$="{{items}}" as="item">
+        <lrnsys-outline-item 
+          disable-down$="{{item.disableDown}}" 
+          disable-left$="{{item.disableLeft}}" 
+          disable-right$="{{item.disableRight}}" 
+          disable-up$="{{item.disableUp}}"  
+          id$="{{item.id}}"  
+          index$="{{item.index}}"  
+          indent-level$="{{item.indent}}" 
+          parent$="{{item.parent}}"
+          title$="{{item.title}}">
+        </lrnsys-outline-item>
       </template>
     </div>
   </template>
@@ -128,7 +137,6 @@ A LRN element
             {id: 'outline-item-'+this.__tempid, title: '', order: 0, parent: null}
           ];
         }
-        console.log('readysetData',this.data);
         this.setData(this.data);
       },
       /**
@@ -136,14 +144,26 @@ A LRN element
        */
       setData: function(data){
         this.items = [];
+        this.items = data;
         if(data !== undefined && data.length > 0){
+          let prevIndent = -1; 
           for (i in data) {
+            let indent = parseInt(this._getIndent(data,i));
             this.__tempid = this.__tempid === undefined ? 0 : this.__tempid + 1;
-            data[i].indent = this._getIndent(data,i);
-            data[i].id === data[i].id === undefined ? 'outline-item-'+this.__tempid : data[i].id;
+            data[i].index = parseInt(i);
+            data[i].indent = indent;
+            data[i].prevSibling = this._getSibling(parseInt(i),indent,true);
+            data[i].nextSibling = this._getSibling(parseInt(i),indent,false);
+            data[i].disableUp = data[i].prevSibling === null;
+            data[i].disableDown = data[i].nextSibling === null;
+            data[i].disableLeft = indent === 0;
+            data[i].disableRight = indent > prevIndent;
+            data[i].id = data[i].id === undefined ? 'outline-item-'+this.__tempid : data[i].id;
+            prevIndent = indent;
           }
         }
-        console.log('setData',this.items);
+        console.log(data);
+        this.items = [];
         this.items = data;
       },
       /**
@@ -153,7 +173,6 @@ A LRN element
         for (i in this.items){
           this.items[i].order = this._getOrder(this.items[i]);
         }
-        console.log('getData',this.items);
         return this.items;
       },
       /**
@@ -161,7 +180,7 @@ A LRN element
        */
        addItem: function(item){
         console.log('addItem',item);
-        let items = this.items, i = this.items.findIndex(j => j.id === item.id);
+        let items = this.items, i = item.index;
         this.__tempid = this.__tempid+1;
         items.splice(i+1, 0, {id: 'outline-item-'+this.__tempid, title: '', indent: item.indent, parent: item.parent});
         this._refreshData();
@@ -174,7 +193,7 @@ A LRN element
        */
        removeItem: function(item){
         console.log('removeItem',item);
-        let i = this.items.findIndex(j => j.id === item.id), items;
+        let i = item.index, items;
         if (confirm('Do you really want to delete '+this.items[i].title+'?')) {
           for (k in this.items){
             if(this.items[k].parent == this.items[i].id) {
@@ -189,57 +208,51 @@ A LRN element
       /**
        * moves an grop of items down
        */
-      moveItem: function(item,moveUp,byGroup){
-        console.log('moveItem',item,moveUp,byGroup);
-        let start = this.items.findIndex(j => j.id === item.id), children = byGroup ? this._getNextSibling(item): start+1;
-        let target = moveUp ? start-1 : start+1, total = children > -1 ? Math.abs(children-start) : Math.abs(this.items.length-1-start); 
-        let items, items2, items3, items4;
-        console.log('moveItem',start,target);
+      moveItem: function(item,moveUp){
+        console.log('moveItem',item,moveUp);
+        let start = item.index, next = this.items[start].nextSibling;
+        let nextAll = this.items[next] !== undefined && this.items[next].nextSibling !== null ? this.items[next].nextSibling : next+1;
+        let target = moveUp ? this.items[start].prevSibling : nextAll-1;
+        let items = this.items, items2;
         if(target > -1) {
-          items = this.items.slice(start,total+1)
-          items2 = this.items.splice(start,total);
-          items3 = this.items.splice(target,0,...items2);
-          items4 = this.items;
-          this.setData(items4);
-          this.$$('#itemslist').querySelectorAll('lrnsys-outline-item')[target].focus();
+          if ((moveUp && !item.disableUp) || (!moveUp && !item.disableDown)){
+            items2 = items.splice(target,0,...items.splice(start,next-start));
+            console.log('moveItem',target,start,this.items[start],next,nextAll,items,items2);
+            //this.setData(items);
+            this.$$('#itemslist').querySelector('lrnsys-outline-item[index="'+target+'"]').focus();
+          }
         }
       },
       /**
        * refresh the array
        */
       _refreshData: function(){
-        let items = this.items;
+        let data = this.items;
         this.items = [];
-        this.items = items;
+        this.items = data;
+        console.log(data);
       },
       /**
-       * increase indent
+       * adjust indent
        */
-      _increaseIndent: function(item){
-        console.log('_increaseIndent',item);
-        let prev = this._getItemById(item.id,-1), next = this._getItemById(item.id,1), indent = item.indent;
-        if(item !== undefined && prev !== undefined && item.indent - prev.indent <= 0) {
-          item.indent = indent + 1;
-          item.parent = this._getItemById(item.id,-1).id;
-          while(next !== undefined && indent < next.indent){
-            next.indent = next.indent + 1;
-            next = this._getItemById(next.id,1);
-          }
-          this._refreshData();
-        }
-      },
-      /**
-       * decrease indent
-       */
-      _decreaseIndent: function(item){
-        console.log('_decreaseIndent',item);
-        let next = this._getItemById(item.id,1), indent = item.indent;
-        if(indent > 0) {
-          item.indent = item.indent - 1;
-          item.parent = this._getItemById(item.parent).parent;
-          while(next !== undefined && indent < next.indent){
-            next.indent = next.indent - 1;
-            next = this._getItemById(next.id,1);
+      _adjustIndent: function(item,amount){
+        console.log('_adjustIndent',amount);
+        if((amount > 0 && !item.disableRight) || (amount < 0 && !item.disableLeft)) {
+          let i = parseInt(item.index), oldIndent = item.indent, indent = item.indent + amount, n = i + 1;
+          let prevParent = item.prevSibling !== null ? item.prevSibling.id : null;
+          let grandParent = this._getItemById(item.parent) && this._getItemById(item.parent).parent ? this._getItemById(item.parent).parent.id : null;
+          item.indent = indent;
+          item.parent = amount > 0 ? prevParent : grandParent;
+          item.prevSibling = this._getSibling(i,indent,true);
+          item.nextSibling = this._getSibling(i,indent,false);
+          item.disableUp = item.prevSibling === null;
+          item.disableDown = item.nextSibling === null;
+          item.disableLeft = indent === 0;
+          item.disableRight = this.items[i-1] === null || indent > this.items[i-1].indent;
+          while(this.items[n] !== null && this.items[n] !== undefined && oldIndent < this.items[n].indent){
+            this.items[n].indent = this.items[n].indent + amount;
+            n++;
+            next = this.items[n];
           }
           this._refreshData();
         }
@@ -270,19 +283,19 @@ A LRN element
         }
         return order;
       },
+      
       /**
-       * returns previous sibling
+       * returns previous or next sibling
        */
-      _getNextSibling: function(item){
-        let ctr = 0,found = false,current= -1;
-        for (i in this.items){
-          if(this.items[i].id == item.id) {
-            current = parseInt(i);
-          } else if (current > -1 && this.items[i].indent <= item.indent) {
-            return parseInt(i);
+      _getSibling: function(index,indent,prev){
+        let inc = prev ? -1 : 1, i = index + inc, sib = null;
+        while (i < this.items.length && i > -1){
+          if (sib === null && this.items[i].parent === this.items[index].parent) {
+            sib = i;
           }
+          i += inc;
         }
-        return current > -1 ? current + 1 : current;
+        return sib;
       },
       /**
        * get an item by item id
@@ -293,7 +306,7 @@ A LRN element
         if (this.items[i+offset] !== undefined){
           return this.items[i+offset];
         } else {
-          return undefined;
+          return null;
         }
       },
       /**
@@ -325,12 +338,8 @@ A LRN element
        * listener to increase or decrease indent
        */
       _handleIndentItem: function(e){
-        if (e.detail.increase){
-          this._increaseIndent(this._getItemById(e.detail.item.id));
-        } else {
-          this._decreaseIndent(this._getItemById(e.detail.item.id));
-        }
-        this._refreshData();
+        let amt = e.detail.increase ? 1 : -1;
+        this._adjustIndent(this._getItemById(e.detail.item.id),amt);
       },
       /**
        * listener to handle changes to text inputs
