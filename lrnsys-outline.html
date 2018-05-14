@@ -23,24 +23,22 @@ A LRN element
       :host {
         display: block;
       }
+      :host kbd {
+        display: inline-block;
+        background: #333;
+        color: white;
+        border-radius: 0.25em;
+        margin: 0.25em 0.25em 0.25em 0;
+        padding: 0.5em;
+        font-family: Verdana, Geneva, Tahoma, sans-serif;
+        font-size:85%;
+      }
     </style>
     <h1>[[title]]<paper-icon-button title="Keyboard directions" id="dialogtrigger" icon="icons:help" on-tap="openDirections"></paper-icon-button></h1>
     <paper-dialog id="modal" with-backdrop>
       <h2>Keyboard shortcuts</h2>
       <div>
         <paper-icon-button title="close directions" style="position: absolute;top: 0; right:0;" icon="icons:cancel" on-tap="closeDirections"></paper-icon-button>
-        <style>
-          kbd {
-            display: inline-block;
-            background: #333;
-            color: white;
-            border-radius: 0.25em;
-            margin: 0.25em 0.25em 0.25em 0;
-            padding: 0.5em;
-            font-family: Verdana, Geneva, Tahoma, sans-serif;
-            font-size:85%;
-          }
-        </style>
         <ul>
           <li><kbd>Enter</kbd> to <strong>add</strong> an item</li>
           <li><kbd>Backspace</kbd> <em>with entire item selected</em> to <strong>delete</strong> an item.</li>

@@ -9,7 +9,8 @@
     "iron-a11y-keys": "PolymerElements/iron-a11y-keys#^2.0.0",
     "paper-dialog": "PolymerElements/paper-dialog#^2.1.1",
     "paper-icon-button": "PolymerElements/paper-icon-button#^2.2.0",
-    "swipe-action": "vguillou/swipe-action#^1.0.1"
+    "swipe-action": "vguillou/swipe-action#^1.0.1",
+    "drawing-icons": "LRNWebComponents/drawing-icons"
   },
   "devDependencies": {
     "iron-component-page": "PolymerElements/iron-component-page#^1.0.0",

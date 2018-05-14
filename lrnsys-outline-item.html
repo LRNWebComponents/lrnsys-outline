@@ -1,6 +1,7 @@
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="../iron-list/iron-list.html">
 <link rel="import" href="../iron-a11y-keys/iron-a11y-keys.html">
+<link rel="import" href="../drawing-icons/drawing-icons.html">
 <link rel="import" href="../paper-input/paper-input.html">
 <link rel="import" href="../paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../swipe-action/swipe-action.html">
@@ -63,6 +64,17 @@ A LRN element
       :host:hover #wrapper {
         cursor: pointer;
       }
+      :host #swipe #move {
+        font-size: 16px;
+        padding: 10px;
+        display: none;
+        color: transparent;
+      }
+      :host:focus #swipe #move,
+      :host:hover #swipe #move {
+        display: block;
+        color: var(--lrnsys-outline-move-icon-color, #aaaaaa);
+      }
       :host #swipe paper-icon-button {
         position: static;
         font-size: 16px;
@@ -104,6 +116,7 @@ A LRN element
     </style>
     <swipe-action id="swipe" on-swiped-away="_onSwipedAway">
       <div id="wrapper" data-indent$="[[indentLevel]]">
+        <iron-icon id="move" title="Move" icon="drawing:move" role="presentation"></iron-icon>
         <paper-input
           id="input"
           label="Enter a page title"
