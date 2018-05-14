@@ -26,26 +26,26 @@ A LRN element
         display: block;
         --indent-multiplier: 20px;
       }
-      :host [data-indent="0"] {
-        padding-left: calc(var(--indent-multiplier) * 1);
+      :host [data-indent="0"] #move {
+        margin-right: calc(var(--indent-multiplier) * 0);
       }
-      :host [data-indent="1"] {
-        padding-left: calc(var(--indent-multiplier) * 2);
+      :host [data-indent="1"] #move {
+        margin-right: calc(var(--indent-multiplier) * 1);
       }
-      :host [data-indent="2"] {
-        padding-left: calc(var(--indent-multiplier) * 3);
+      :host [data-indent="2"] #move {
+        margin-right: calc(var(--indent-multiplier) * 2);
       }
-      :host [data-indent="3"] {
-        padding-left: calc(var(--indent-multiplier) * 4);
+      :host [data-indent="3"] #move {
+        margin-right: calc(var(--indent-multiplier) * 3);
       }
-      :host [data-indent="4"] {
-        padding-left: calc(var(--indent-multiplier) * 5);
+      :host [data-indent="4"] #move {
+        margin-right: calc(var(--indent-multiplier) * 4);
       }
-      :host [data-indent="5"] {
-        padding-left: calc(var(--indent-multiplier) * 6);
+      :host [data-indent="5"] #move {
+        margin-right: calc(var(--indent-multiplier) * 5);
       }
-      :host [data-indent="6"] {
-        padding-left: calc(var(--indent-multiplier) * 7);
+      :host [data-indent="6"] #move {
+        margin-right: calc(var(--indent-multiplier) * 6);
       }
       :host #swipe {
         height: 40px;
@@ -67,12 +67,10 @@ A LRN element
       :host #swipe #move {
         font-size: 16px;
         padding: 10px;
-        display: none;
         color: transparent;
       }
       :host:focus #swipe #move,
       :host:hover #swipe #move {
-        display: block;
         color: var(--lrnsys-outline-move-icon-color, #aaaaaa);
       }
       :host #swipe paper-icon-button {
