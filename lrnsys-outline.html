@@ -209,16 +209,13 @@ A LRN element
        * moves an grop of items down
        */
       moveItem: function(item,moveUp){
-        console.log('moveItem',item,moveUp);
-        let start = item.index, next = this.items[start].nextSibling;
-        let nextAll = this.items[next] !== undefined && this.items[next].nextSibling !== null ? this.items[next].nextSibling : next+1;
-        let target = moveUp ? this.items[start].prevSibling : nextAll-1;
+        let sourceStart = item.index, sourceEnd = this._getLastChild(item), sourceCount = sourceEnd-sourceStart+1;
+        let target = moveUp ? this.items[sourceStart].prevSibling : this._getLastChild(this.items[sourceEnd+1]) - sourceCount + 1;
         let items = this.items, items2;
         if(target > -1) {
           if ((moveUp && !item.disableUp) || (!moveUp && !item.disableDown)){
-            items2 = items.splice(target,0,...items.splice(start,next-start));
-            console.log('moveItem',target,start,this.items[start],next,nextAll,items,items2);
-            //this.setData(items);
+            items2 = items.splice(target,0,...items.splice(sourceStart,sourceCount));
+            this.setData(items);
             this.$$('#itemslist').querySelector('lrnsys-outline-item[index="'+target+'"]').focus();
           }
         }
@@ -255,6 +252,24 @@ A LRN element
             next = this.items[n];
           }
           this._refreshData();
+        }
+      },
+      /**
+       * gets all children of an item
+       */
+      _getLastChild: function(item){
+        console.log('_getLastChild',item);
+        let next = this._getSibling(item.index,item.indent,false);
+        if (next !== null && next !== undefined){
+          console.log('next -1',next);
+          return next - 1;
+        } else if (item.parent !== null  && item.parent !== null && this._getItemById(item.parent) !== null) {
+          return this._getLastChild(this._getItemById(item.parent));
+        } else {
+          console.log('item parent',item.parent);
+          console.log('item parent',this._getItemById(item.parent));
+          console.log('last item',this.items.length - 1);
+          return this.items.length - 1;
         }
       },
       /**
