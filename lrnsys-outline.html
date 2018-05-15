@@ -76,6 +76,8 @@ A LRN element
         'add-item': '_handleAddItem',
         'move-item': '_handleMoveItem',
         'change-item': '_handleChangeItem',
+        'focus-item': '_handleFocusItem',
+        'blur-item': '_handleBlurItem',
       },
 
       properties: {
@@ -160,7 +162,6 @@ A LRN element
             prevIndent = indent;
           }
         }
-        console.log(data);
         this.items = [];
         this.items = data;
       },
@@ -181,9 +182,8 @@ A LRN element
         this.__tempid = this.__tempid+1;
         items.splice(i+1, 0, {id: 'outline-item-'+this.__tempid, title: '', indent: item.indent, parent: item.parent});
         this._refreshData();
-        this.async(function() {
-          Polymer.dom(this.root).querySelectorAll('lrnsys-outline-item')[i+1].focus();
-        });
+        this.__focusedItem = item.nextElementSibling;
+        this.__focusedItem.focus();
       },
       /**
        * removes an item
@@ -191,6 +191,7 @@ A LRN element
        removeItem: function(item){
         let i = item.index, items;
         if (confirm('Do you really want to delete '+this.items[i].title+'?')) {
+          this.__focusedItem = item.previousElementSibling;
           for (k in this.items){
             if(this.items[k].parent == this.items[i].id) {
               this.items[k].parent = this.items[i].parent;
@@ -198,22 +199,22 @@ A LRN element
           }
           this.items.splice(i, 1);
           this._refreshData();
-          this.$$('#itemslist').querySelectorAll('lrnsys-outline-item')[i-1].focus();
+          this.__focusedItem.focus();
         }
       },
       /**
        * moves an grop of items down
        */
       moveItem: function(item,moveUp){
-        let sourceStart = item.index, sourceEnd = this._getLastChild(item), sourceCount = sourceEnd-sourceStart+1;
+        let root = this, sourceStart = item.index, sourceEnd = this._getLastChild(item), sourceCount = sourceEnd-sourceStart+1;
         let target = moveUp ? this.items[sourceStart].prevSibling : this._getLastChild(this.items[sourceEnd+1]) - sourceCount + 1;
         let items = this.items, items2;
-        if(target > -1) {
+        if(target > -1 && target < this.items.length) {
           if ((moveUp && !item.disableUp) || (!moveUp && !item.disableDown)){
             items2 = items.splice(target,0,...items.splice(sourceStart,sourceCount));
             this.setData(items);
-            console.log(target,this.items[target]);
-            this.$$('#itemslist').querySelector('lrnsys-outline-item[index="'+target+'"]').focus();
+            this.__focusedItem = this.$.itemslist.querySelectorAll('lrnsys-outline-item')[target];
+            this.__focusedItem.focus();
           }
         }
       },
@@ -224,13 +225,12 @@ A LRN element
         let data = this.items;
         this.items = [];
         this.items = data;
-        console.log(data);
+        if (this.__focusedItem !== undefined && this.__focusedItem !== null) this.__focusedItem.focus();
       },
       /**
        * adjust indent
        */
       _adjustIndent: function(item,amount){
-        console.log('_adjustIndent',amount);
         if((amount > 0 && !item.disableRight) || (amount < 0 && !item.disableLeft)) {
           let i = parseInt(item.index), oldIndent = item.indent, indent = item.indent + amount, n = i + 1;
           let prevParent = item.prevSibling !== null ? item.prevSibling.id : null;
@@ -255,7 +255,7 @@ A LRN element
        * gets all children of an item
        */
       _getLastChild: function(item){
-        let next = this._getSibling(item.index,item.indent,false);
+        let next = item !== undefined && item !== null ? this._getSibling(item.index,item.indent,false) : null;
         if (next !== null && next !== undefined){
           return next - 1;
         } else if (item.parent !== null  && item.parent !== null && this._getItemById(item.parent) !== null) {
@@ -354,6 +354,17 @@ A LRN element
       _handleChangeItem: function(e){
         this._getItemById(e.detail.item.id).title = e.detail.value;
         this._refreshData();
+      },
+      /**
+       * listener for focus or mouseover
+       */
+      _handleFocusItem: function(e){
+        this.__focusedItem = e.srcElement;
+      },
+      /**
+       * listener for blur or mouseout
+       */
+      _handleBlurItem: function(e){
       },
     });
   </script>

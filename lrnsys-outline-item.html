@@ -209,7 +209,21 @@ A LRN element
         this.fire('attached-item', {item: this});
       },
       ready: function(){
+        let root = this;
         this.target = this.$.input;
+        root.fire('focus-item',root);
+        root.addEventListener('focus',function(e){
+          root.fire('focus-item',root);
+        });
+        root.addEventListener('mouseover',function(e){
+          root.fire('focus-item',root);
+        });
+        root.addEventListener('blur',function(e){
+          root.fire('blur-item',root);
+        });
+        root.addEventListener('mouseout',function(e){
+          root.fire('blur-item',root);
+        });
       },
       focus: function(){
         this.$.input.focus();
@@ -230,7 +244,6 @@ A LRN element
         this.fire('add-item', {item: this, value: j.slice(0, i), new: j.slice(i, j.length)});
       },
       move: function(amount) {
-        console.log({item: this, moveUp: amount < 0});
         this.fire('move-item', {item: this, moveUp: amount < 0});
       },
       setSelection: function(start,end){
@@ -283,7 +296,6 @@ A LRN element
         this.move(1);
       },
       _onSwipedAway: function(e){
-        console.log(e.detail.action.id);
         if(e.detail.action.id === 'right') {
           this.setIndent(1);
         } else if(e.detail.action.id === 'left') {
